@@ -1,0 +1,20 @@
+hyperfine \
+  --parameter-scan nproc 8 16 \
+  --parameter-step-size 8 \
+  --prepare 'make ARCH=x86_64 LLVM=1 tinyconfig kvm_guest.config virtio-fs.config systemd.config distro.config storage.config' \
+  --runs 10 'make ARCH=x86_64 LLVM=1 -j{nproc}' \
+  --conclude 'make LLVM=1 mrproper' \
+  --export-markdown build-x1gen7-minimal.md \
+  --export-json build-x1gen7-minimal.json
+
+Benchmark 1: make ARCH=x86_64 LLVM=1 -j8
+  Time (mean ± σ):     450.550 s ± 21.517 s    [User: 3111.022 s, System: 196.135 s]
+  Range (min … max):   421.027 s … 481.203 s    10 runs
+
+Benchmark 2: make ARCH=x86_64 LLVM=1 -j16
+  Time (mean ± σ):     442.646 s ±  1.710 s    [User: 3083.999 s, System: 190.035 s]
+  Range (min … max):   440.113 s … 444.878 s    10 runs
+
+Summary
+  make ARCH=x86_64 LLVM=1 -j16 ran
+    1.02 ± 0.05 times faster than make ARCH=x86_64 LLVM=1 -j8

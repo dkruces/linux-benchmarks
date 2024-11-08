@@ -1,0 +1,24 @@
+Command 'make LLVM=1 ARCH=x86_64 -j8'
+  runs:         10
+  mean:    501.969 s
+  stddev:  175.665 s
+  median:  556.174 s
+  min:       2.867 s
+  max:     580.090 s
+
+  percentiles:
+     P_05 .. P_95:    245.089 s .. 573.362 s
+     P_25 .. P_75:    549.550 s .. 558.234 s  (IQR = 8.684 s)
+
+Command 'make LLVM=1 ARCH=x86_64 -j16'
+  runs:         10
+  mean:    543.659 s
+  stddev:    2.859 s
+  median:  542.277 s
+  min:     541.172 s
+  max:     548.787 s
+
+  percentiles:
+     P_05 .. P_95:    541.376 s .. 548.524 s
+     P_25 .. P_75:    541.780 s .. 545.064 s  (IQR = 3.284 s)
+
