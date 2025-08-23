@@ -4,21 +4,91 @@ This project provides benchmarks for building the Linux kernel using
 [hyperfine](https://github.com/sharkdp/hyperfine) and includes archived
 results per machine.
 
+## Prerequisites
 
-## Example Usage
+You need to install the following tools:
 
-The following example demonstrates building the Linux kernel 10 times
-using the `btiny_defconfig` configuration, with both 8 and 16 threads:
+### macOS (using Homebrew)
+
+```bash
+# Install required tools
+brew install hyperfine uv
+
+# For macOS development with bee-init (for LLVM toolchain)
+# Follow bee-init installation instructions for your setup
+```
+
+### Debian/Ubuntu
+
+```bash
+# Install hyperfine
+curl -LsSf https://github.com/sharkdp/hyperfine/releases/latest/download/hyperfine-aarch64-unknown-linux-gnu.tar.gz | tar xzf - --strip-components=1 -C ~/.local/bin hyperfine-*/hyperfine
+
+# Install uv (Python package manager)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Alternatively, use package manager if available
+sudo apt update
+sudo apt install hyperfine  # if available in your repos
+pip install uv             # alternative uv installation
+```
+
+## Quick Start
+
+The parametrized Makefile provides various kernel configurations:
+
+```bash
+# Run minimal configuration benchmark
+make minimal
+
+# Run with custom parameters
+make minimal RUNS=5 KERNEL_VERSION=v6.16.0
+
+# Run defconfig benchmark
+make defconfig
+
+# Run eBPF-ready configuration
+make ebpf-ready
+
+# Generate analysis from results
+make analyze plot
+```
+
+
+## Configuration Options
+
+The Makefile provides several predefined configurations:
+
+### Fragment-based Configurations
+- `minimal` - Basic functional kernel (KVM + systemd + storage)
+- `ebpf-ready` - Minimal + eBPF support with error injection
+- `modules-ready` - Minimal + loadable module support  
+- `debug-ready` - Minimal + VM debugging and GDB support
+
+### Kernel-native Configurations
+- `defconfig` - Architecture default configuration
+- `alldefconfig` - All symbols set to default values
+
+### Individual Components
+- `kvm_guest`, `virtio-fs`, `systemd`, `distro`, `storage`, `numa`, `ebpf`
+
+## Manual hyperfine Usage
+
+You can also run hyperfine directly with custom configurations:
 
 ```sh
+# Source environment (macOS only)
+source bee-init
+
+# Run hyperfine with custom config
 hyperfine \
-  --parameter-scan nproc 8 16 \
-  --parameter-step-size 8 \
-  --prepare 'make LLVM=1 btiny_defconfig' \
-  --runs 10 'make LLVM=1 -j{nproc}' \
-  --conclude 'make LLVM=1 mrproper' \
-  --export-markdown btiny.md \
-  --export-json btiny.json
+  --parameter-scan nproc $(nproc) $(($(nproc) * 2)) \
+  --parameter-step-size $(nproc) \
+  --prepare 'make defconfig' \
+  --runs 10 'make -j{nproc}' \
+  --conclude 'make mrproper' \
+  --export-markdown defconfig.md \
+  --export-json defconfig.json
 ```
 
 Plot using hyperfine [scripts](https://github.com/sharkdp/hyperfine/tree/master/scripts):
