@@ -1,0 +1,24 @@
+Command 'make -j12'
+  runs:          1
+  mean:     51.567 s
+  stddev:      nan s
+  median:   51.567 s
+  min:      51.567 s
+  max:      51.567 s
+
+  percentiles:
+     P_05 .. P_95:    51.567 s .. 51.567 s
+     P_25 .. P_75:    51.567 s .. 51.567 s  (IQR = 0.000 s)
+
+Command 'make -j24'
+  runs:          1
+  mean:     54.630 s
+  stddev:      nan s
+  median:   54.630 s
+  min:      54.630 s
+  max:      54.630 s
+
+  percentiles:
+     P_05 .. P_95:    54.630 s .. 54.630 s
+     P_25 .. P_75:    54.630 s .. 54.630 s  (IQR = 0.000 s)
+
