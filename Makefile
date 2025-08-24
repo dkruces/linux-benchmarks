@@ -3,7 +3,7 @@
 
 .PHONY: help minimal ebpf-ready modules-ready debug-ready
 .PHONY: kvm_guest virtio-fs systemd distro storage numa ebpf ebpf-errorinj
-.PHONY: defconfig alldefconfig allyesconfig
+.PHONY: defconfig alldefconfig allyesconfig allnoconfig tinyconfig
 .PHONY: analyze plot clean-results setup-scripts system-info
 
 # Default target
@@ -114,6 +114,8 @@ help:
 	@echo "  defconfig       - Default config from ARCH supplied defconfig"
 	@echo "  alldefconfig    - All symbols set to default values"
 	@echo "  allyesconfig    - New config where all options are accepted with yes"
+	@echo "  allnoconfig     - New config where all options are answered with no"
+	@echo "  tinyconfig      - Configure the tiniest possible kernel"
 	@echo ""
 	@echo "System targets:"
 	@echo "  analyze         - Generate advanced statistics from existing results"
@@ -254,6 +256,12 @@ alldefconfig: $(RESULTS_BASE_DIR)
 
 allyesconfig: $(RESULTS_BASE_DIR)
 	$(call run_kernel_config_benchmark,allyesconfig)
+
+allnoconfig: $(RESULTS_BASE_DIR)
+	$(call run_kernel_config_benchmark,allnoconfig)
+
+tinyconfig: $(RESULTS_BASE_DIR)
+	$(call run_kernel_config_benchmark,tinyconfig)
 
 # Download hyperfine analysis scripts
 setup-scripts:
