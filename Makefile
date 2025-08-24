@@ -59,6 +59,7 @@ MIN_THREADS ?= 12
 MAX_THREADS ?= 24
 THREAD_STEP ?= 12
 RUNS ?= 10
+WARMUP ?= 1
 
 # Base config files
 BASE_CONFIGS = $(CONFIG_FRAGMENTS)/kernel/configs/64bit.config
@@ -134,6 +135,7 @@ help:
 	@echo "  MAX_THREADS     = $(MAX_THREADS)"
 	@echo "  THREAD_STEP     = $(THREAD_STEP)"
 	@echo "  RUNS            = $(RUNS)"
+	@echo "  WARMUP          = $(WARMUP)"
 	@echo ""
 	@echo "Example usage:"
 	@echo "  make minimal"
@@ -183,6 +185,7 @@ define run_benchmark
 	hyperfine \
 		--parameter-scan nproc $(MIN_THREADS) $(MAX_THREADS) \
 		--parameter-step-size $(THREAD_STEP) \
+		--warmup $(WARMUP) \
 		--prepare '$(KERNEL_SOURCE)/scripts/kconfig/merge_config.sh -n .config $(2)' \
 		--runs $(RUNS) 'make -j{nproc}' \
 		--conclude 'make mrproper' \
@@ -202,6 +205,7 @@ define run_kernel_config_benchmark
 	hyperfine \
 		--parameter-scan nproc $(MIN_THREADS) $(MAX_THREADS) \
 		--parameter-step-size $(THREAD_STEP) \
+		--warmup $(WARMUP) \
 		--prepare 'make $(1)' \
 		--runs $(RUNS) 'make -j{nproc}' \
 		--conclude 'make mrproper' \
