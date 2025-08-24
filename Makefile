@@ -4,7 +4,7 @@
 .PHONY: help minimal ebpf-ready modules-ready debug-ready
 .PHONY: kvm_guest virtio-fs systemd distro storage numa ebpf ebpf-errorinj
 .PHONY: defconfig alldefconfig allyesconfig
-.PHONY: analyze plot clean-results setup-scripts
+.PHONY: analyze plot clean-results setup-scripts system-info
 
 # Default target
 all: help
@@ -119,6 +119,7 @@ help:
 	@echo "  analyze         - Generate advanced statistics from existing results"
 	@echo "  plot            - Generate progression plots from existing results"
 	@echo "  setup-scripts   - Download hyperfine analysis scripts"
+	@echo "  system-info     - Display current system information"
 	@echo "  clean-results   - Remove all benchmark results"
 	@echo "  help            - Show this help message"
 	@echo ""
@@ -161,12 +162,21 @@ validate-kernel:
 $(RESULTS_BASE_DIR): validate-kernel
 	@mkdir -p $(RESULTS_BASE_DIR)
 
+# Common system information collection function
+define collect_system_info
+	@if command -v fastfetch >/dev/null 2>&1; then \
+		fastfetch --logo none -s CPU:CPUCache:GPU:Kernel:OS:Host:Memory:PhysicalMemory > $(1) 2>/dev/null; \
+	fi
+endef
+
 # Generic benchmark function for fragment-based configs
 define run_benchmark
 	@echo "🚀 Starting $(1) benchmark with $(MIN_THREADS)-$(MAX_THREADS) threads ($(RUNS) runs)"
 	@echo "📍 Working in: $(KERNEL_SOURCE)"
 	@echo "💾 Results to: $(RESULTS_BASE_DIR)/$(1)/"
 	@mkdir -p $(RESULTS_BASE_DIR)/$(1)
+	@echo "📋 Collecting system information..."
+	$(call collect_system_info,$(RESULTS_BASE_DIR)/$(1)/system_info.txt)
 	cd $(KERNEL_SOURCE) && $(BEE_INIT_CMD) \
 	hyperfine \
 		--parameter-scan nproc $(MIN_THREADS) $(MAX_THREADS) \
@@ -184,6 +194,8 @@ define run_kernel_config_benchmark
 	@echo "📍 Working in: $(KERNEL_SOURCE)"
 	@echo "💾 Results to: $(RESULTS_BASE_DIR)/$(1)/"
 	@mkdir -p $(RESULTS_BASE_DIR)/$(1)
+	@echo "📋 Collecting system information..."
+	$(call collect_system_info,$(RESULTS_BASE_DIR)/$(1)/system_info.txt)
 	cd $(KERNEL_SOURCE) && $(BEE_INIT_CMD) \
 	hyperfine \
 		--parameter-scan nproc $(MIN_THREADS) $(MAX_THREADS) \
@@ -296,6 +308,16 @@ plot: $(RESULTS_BASE_DIR) setup-scripts
 		done; \
 	else \
 		echo "⚠️  scripts/plot_progression.py not found - skipping plots"; \
+	fi
+
+# Display current system information
+system-info:
+	@echo "🖥️  System Information:"
+	@echo "======================"
+	@if command -v fastfetch >/dev/null 2>&1; then \
+		fastfetch --logo none -s CPU:CPUCache:GPU:Kernel:OS:Host:Memory:PhysicalMemory 2>/dev/null; \
+	else \
+		echo "⚠️  fastfetch not found - please install fastfetch"; \
 	fi
 
 # Clean all results

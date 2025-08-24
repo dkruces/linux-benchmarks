@@ -12,7 +12,7 @@ You need to install the following tools:
 
 ```bash
 # Install required tools
-brew install hyperfine uv
+brew install hyperfine uv fastfetch
 
 # For macOS development with bee-init (for LLVM toolchain)
 # Follow bee-init installation instructions for your setup
@@ -27,8 +27,12 @@ curl -LsSf https://github.com/sharkdp/hyperfine/releases/latest/download/hyperfi
 # Install uv (Python package manager)
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Alternatively, use package manager if available
+# Install fastfetch
 sudo apt update
+sudo apt install fastfetch  # if available in your repos
+# Or download from: https://github.com/fastfetch-cli/fastfetch
+
+# Alternatively, use package manager if available
 sudo apt install hyperfine  # if available in your repos
 pip install uv             # alternative uv installation
 ```
