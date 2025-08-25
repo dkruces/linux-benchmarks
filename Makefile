@@ -335,7 +335,7 @@ analyze: $(RESULTS_BASE_DIR) setup-scripts
 				json_file="$$config_dir/benchmark.json"; \
 				if [ -f "$$json_file" ]; then \
 					echo "  Processing $$config_name..."; \
-					cd "$$config_dir" && uv run ../../../../scripts/advanced_statistics.py benchmark.json > advanced_statistics.log; \
+					cd "$$config_dir" && uv run ../../../../../scripts/advanced_statistics.py benchmark.json > advanced_statistics.log; \
 					cd - > /dev/null; \
 				fi \
 			fi \
@@ -354,7 +354,7 @@ plot: $(RESULTS_BASE_DIR) setup-scripts
 				json_file="$$config_dir/benchmark.json"; \
 				if [ -f "$$json_file" ]; then \
 					echo "  Processing $$config_name..."; \
-					cd "$$config_dir" && uv run ../../../../scripts/plot_progression.py benchmark.json --output progression.png; \
+					cd "$$config_dir" && uv run ../../../../../scripts/plot_progression.py benchmark.json --output progression.png; \
 					cd - > /dev/null; \
 				fi \
 			fi \
