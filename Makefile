@@ -55,9 +55,10 @@ DETECTED_KERNEL_VERSION := $(shell \
 
 # Benchmark parameters  
 RESULTS_BASE_DIR = results/$(MACHINE_ID)/$(KERNEL_VERSION)
-MIN_THREADS ?= 12
-MAX_THREADS ?= 24
-THREAD_STEP ?= 12
+NPROC := $(shell nproc)
+MIN_THREADS ?= $(NPROC)
+MAX_THREADS ?= $(shell expr $(NPROC) \* 2)
+THREAD_STEP ?= $(NPROC)
 RUNS ?= 10
 WARMUP ?= 1
 
