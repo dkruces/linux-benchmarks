@@ -53,8 +53,9 @@ DETECTED_KERNEL_VERSION := $(shell \
 		echo "invalid"; \
 	fi)
 
-# Benchmark parameters  
-RESULTS_BASE_DIR = results/$(MACHINE_ID)/$(KERNEL_VERSION)
+# Benchmark parameters
+COMPILER_DIR = $(if $(LLVM_FLAG),llvm,gcc)
+RESULTS_BASE_DIR = results/$(MACHINE_ID)/$(KERNEL_VERSION)/$(COMPILER_DIR)
 NPROC := $(shell nproc)
 MIN_THREADS ?= $(NPROC)
 MAX_THREADS ?= $(shell expr $(NPROC) \* 2)
@@ -85,10 +86,22 @@ DEBUG_READY_CONFIGS = $(MINIMAL_CONFIGS) \
 	$(CONFIG_FRAGMENTS)/kernel/configs/vm_debug.config \
 	$(CONFIG_FRAGMENTS)/kernel/configs/gdb.config
 
-# Determine if we need bee-init (macOS only)
+# Determine if we need bee-init (macOS only) and LLVM flag
 BEE_INIT_CMD = $(shell \
 	if [ "$$(uname)" = "Darwin" ]; then \
 		echo "source bee-init &&"; \
+	else \
+		echo ""; \
+	fi)
+
+# LLVM compiler selection
+# On macOS: Always use LLVM (required for kernel builds)
+# On Linux: Default to GCC, but allow LLVM=1 override
+LLVM_FLAG = $(shell \
+	if [ "$$(uname)" = "Darwin" ]; then \
+		echo "LLVM=1"; \
+	elif [ "$(LLVM)" = "1" ]; then \
+		echo "LLVM=1"; \
 	else \
 		echo ""; \
 	fi)
@@ -137,10 +150,16 @@ help:
 	@echo "  THREAD_STEP     = $(THREAD_STEP)"
 	@echo "  RUNS            = $(RUNS)"
 	@echo "  WARMUP          = $(WARMUP)"
+	@echo "  LLVM            = $(LLVM) (1 for LLVM/Clang, unset for GCC on Linux)"
+	@echo ""
+	@echo "Compiler selection:"
+	@echo "  macOS: Always uses LLVM/Clang (required for kernel builds)"
+	@echo "  Linux: Uses GCC by default, set LLVM=1 for LLVM/Clang"
 	@echo ""
 	@echo "Example usage:"
-	@echo "  make minimal"
-	@echo "  make ebpf-ready RUNS=5"
+	@echo "  make minimal                    # Use default compiler (GCC on Linux, LLVM on macOS)"
+	@echo "  make minimal LLVM=1             # Force LLVM/Clang on Linux"
+	@echo "  make ebpf-ready RUNS=5 LLVM=1   # Custom runs with LLVM"
 	@echo "  make debug-ready KERNEL_SOURCE=/path/to/kernel CONFIG_FRAGMENTS=/path/to/fragments"
 
 # Validate kernel version matches user expectation
@@ -172,6 +191,25 @@ define collect_system_info
 	@if command -v fastfetch >/dev/null 2>&1; then \
 		fastfetch --logo none -s CPU:CPUCache:GPU:Kernel:OS:Host:Memory:PhysicalMemory > $(1) 2>/dev/null; \
 	fi
+	@echo "" >> $(1)
+	@echo "Build Environment:" >> $(1)
+	@echo "=================" >> $(1)
+	@echo "Compiler: $(if $(LLVM_FLAG),LLVM/Clang,GCC)" >> $(1)
+	@echo "LLVM Flag: $(LLVM_FLAG)" >> $(1)
+	@echo "Make Threads: $(MIN_THREADS)-$(MAX_THREADS) (step: $(THREAD_STEP))" >> $(1)
+	@echo "Benchmark Runs: $(RUNS)" >> $(1)
+	@echo "Warmup Runs: $(WARMUP)" >> $(1)
+	@echo "Kernel Source: $(KERNEL_SOURCE)" >> $(1)
+	@echo "Config Fragments: $(CONFIG_FRAGMENTS)" >> $(1)
+	@echo "Machine ID: $(MACHINE_ID)" >> $(1)
+	@echo "Kernel Version: $(KERNEL_VERSION)" >> $(1)
+	@date +'Build Date: %Y-%m-%d %H:%M:%S %Z' >> $(1)
+	@if command -v gcc >/dev/null 2>&1; then \
+		echo "GCC Version: $$(gcc --version | head -1)" >> $(1); \
+	fi
+	@if command -v clang >/dev/null 2>&1; then \
+		echo "Clang Version: $$(clang --version | head -1)" >> $(1); \
+	fi
 endef
 
 # Generic benchmark function for fragment-based configs
@@ -179,6 +217,7 @@ define run_benchmark
 	@echo "🚀 Starting $(1) benchmark with $(MIN_THREADS)-$(MAX_THREADS) threads ($(RUNS) runs)"
 	@echo "📍 Working in: $(KERNEL_SOURCE)"
 	@echo "💾 Results to: $(RESULTS_BASE_DIR)/$(1)/"
+	@echo "🔧 Compiler: $(if $(LLVM_FLAG),LLVM/Clang,GCC)"
 	@mkdir -p $(RESULTS_BASE_DIR)/$(1)
 	@echo "📋 Collecting system information..."
 	$(call collect_system_info,$(RESULTS_BASE_DIR)/$(1)/system_info.txt)
@@ -188,8 +227,8 @@ define run_benchmark
 		--parameter-step-size $(THREAD_STEP) \
 		--warmup $(WARMUP) \
 		--prepare '$(KERNEL_SOURCE)/scripts/kconfig/merge_config.sh -n .config $(2)' \
-		--runs $(RUNS) 'make -j{nproc}' \
-		--conclude 'make mrproper' \
+		--runs $(RUNS) 'make $(LLVM_FLAG) -j{nproc}' \
+		--conclude 'make $(LLVM_FLAG) mrproper' \
 		--export-markdown $(PWD)/$(RESULTS_BASE_DIR)/$(1)/benchmark.md \
 		--export-json $(PWD)/$(RESULTS_BASE_DIR)/$(1)/benchmark.json
 endef
@@ -199,6 +238,7 @@ define run_kernel_config_benchmark
 	@echo "🚀 Starting $(1) benchmark with $(MIN_THREADS)-$(MAX_THREADS) threads ($(RUNS) runs)"
 	@echo "📍 Working in: $(KERNEL_SOURCE)"
 	@echo "💾 Results to: $(RESULTS_BASE_DIR)/$(1)/"
+	@echo "🔧 Compiler: $(if $(LLVM_FLAG),LLVM/Clang,GCC)"
 	@mkdir -p $(RESULTS_BASE_DIR)/$(1)
 	@echo "📋 Collecting system information..."
 	$(call collect_system_info,$(RESULTS_BASE_DIR)/$(1)/system_info.txt)
@@ -207,9 +247,9 @@ define run_kernel_config_benchmark
 		--parameter-scan nproc $(MIN_THREADS) $(MAX_THREADS) \
 		--parameter-step-size $(THREAD_STEP) \
 		--warmup $(WARMUP) \
-		--prepare 'make $(1)' \
-		--runs $(RUNS) 'make -j{nproc}' \
-		--conclude 'make mrproper' \
+		--prepare 'make $(LLVM_FLAG) $(1)' \
+		--runs $(RUNS) 'make $(LLVM_FLAG) -j{nproc}' \
+		--conclude 'make $(LLVM_FLAG) mrproper' \
 		--export-markdown $(PWD)/$(RESULTS_BASE_DIR)/$(1)/benchmark.md \
 		--export-json $(PWD)/$(RESULTS_BASE_DIR)/$(1)/benchmark.json
 endef
