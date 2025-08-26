@@ -135,6 +135,7 @@ help:
 	@echo "System targets:"
 	@echo "  analyze         - Generate advanced statistics from existing results"
 	@echo "  plot            - Generate progression plots from existing results"
+	@echo "  report          - Generate comprehensive markdown report with all analysis"
 	@echo "  setup-scripts   - Download hyperfine analysis scripts"
 	@echo "  system-info     - Display current system information"
 	@echo "  clean-results   - Remove all benchmark results"
@@ -361,6 +362,24 @@ plot: $(RESULTS_BASE_DIR) setup-scripts
 		done; \
 	else \
 		echo "⚠️  scripts/plot_progression.py not found - skipping plots"; \
+	fi
+
+# Generate comprehensive markdown report for current machine
+report: setup-scripts
+	@echo "📄 Generating comprehensive benchmark report..."
+	@machine_results_dir="results/$(MACHINE_ID)"; \
+	if [ -d "$$machine_results_dir" ]; then \
+		echo "  Processing results for machine: $(MACHINE_ID)"; \
+		if [ -f "scripts/generate_report.py" ]; then \
+			uv run scripts/generate_report.py "$$machine_results_dir" --scripts-dir scripts; \
+			echo "✅ Report generated: $$machine_results_dir/REPORT.md"; \
+			echo "📋 Report includes: benchmark data, system info, statistics, and plots"; \
+		else \
+			echo "⚠️  scripts/generate_report.py not found"; \
+		fi \
+	else \
+		echo "⚠️  No results found for machine: $(MACHINE_ID)"; \
+		echo "     Expected directory: $$machine_results_dir"; \
 	fi
 
 # Display current system information
