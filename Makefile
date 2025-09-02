@@ -148,6 +148,7 @@ help:
 	@echo "  analyze         - Generate advanced statistics from existing results"
 	@echo "  plot            - Generate progression plots from existing results"
 	@echo "  report          - Generate comprehensive markdown report with all analysis"
+	@echo "  backfill-configs - Generate missing .config and fragments.txt for existing results"
 	@echo "  setup-scripts   - Download hyperfine analysis scripts"
 	@echo "  system-info     - Display current system information"
 	@echo "  clean-results   - Remove all benchmark results"
@@ -425,6 +426,93 @@ system-info:
 	fi
 
 # Clean all results
+# Generate missing configuration files for existing benchmark results
+backfill-configs: validate-kernel
+	@echo "🔧 Backfilling missing configuration files for existing results..."
+	@if [ ! -d "results" ]; then \
+		echo "❌ No results directory found"; \
+		exit 1; \
+	fi
+	@find results -name "benchmark.json" -type f | while read json_file; do \
+		result_dir=$$(dirname "$$json_file"); \
+		config_name=$$(basename "$$result_dir"); \
+		echo "📝 Processing $$result_dir..."; \
+		if [ ! -f "$$result_dir/.config" ] || [ ! -f "$$result_dir/fragments.txt" ]; then \
+			$(MAKE) -s backfill-single-config CONFIG_DIR="$$result_dir" CONFIG_NAME="$$config_name"; \
+		else \
+			echo "   ✅ Configuration files already exist"; \
+		fi; \
+	done
+	@echo "✅ Backfill completed"
+
+# Helper target to backfill a single configuration directory
+backfill-single-config:
+	@if [ -z "$(CONFIG_DIR)" ] || [ -z "$(CONFIG_NAME)" ]; then \
+		echo "❌ CONFIG_DIR and CONFIG_NAME must be specified"; \
+		exit 1; \
+	fi
+	@echo "   🔧 Generating .config and fragments.txt for $(CONFIG_NAME)..."
+	@cd $(KERNEL_SOURCE) && $(BEE_INIT_CMD) ( \
+		case "$(CONFIG_NAME)" in \
+			minimal) \
+				echo "# Configuration fragments used for minimal" > $(PWD)/$(CONFIG_DIR)/fragments.txt; \
+				for fragment in $(MINIMAL_CONFIGS); do \
+					echo "$$fragment" >> $(PWD)/$(CONFIG_DIR)/fragments.txt; \
+					if [ -f "$$fragment" ]; then \
+						cp "$$fragment" "$(PWD)/$(CONFIG_DIR)/" 2>/dev/null || true; \
+					fi; \
+				done; \
+				$(KERNEL_SOURCE)/scripts/kconfig/merge_config.sh -n .config $(MINIMAL_CONFIGS) >/dev/null 2>&1; \
+				;; \
+			ebpf-ready) \
+				echo "# Configuration fragments used for ebpf-ready" > $(PWD)/$(CONFIG_DIR)/fragments.txt; \
+				for fragment in $(EBPF_READY_CONFIGS); do \
+					echo "$$fragment" >> $(PWD)/$(CONFIG_DIR)/fragments.txt; \
+					if [ -f "$$fragment" ]; then \
+						cp "$$fragment" "$(PWD)/$(CONFIG_DIR)/" 2>/dev/null || true; \
+					fi; \
+				done; \
+				$(KERNEL_SOURCE)/scripts/kconfig/merge_config.sh -n .config $(EBPF_READY_CONFIGS) >/dev/null 2>&1; \
+				;; \
+			modules-ready) \
+				echo "# Configuration fragments used for modules-ready" > $(PWD)/$(CONFIG_DIR)/fragments.txt; \
+				for fragment in $(MODULES_READY_CONFIGS); do \
+					echo "$$fragment" >> $(PWD)/$(CONFIG_DIR)/fragments.txt; \
+					if [ -f "$$fragment" ]; then \
+						cp "$$fragment" "$(PWD)/$(CONFIG_DIR)/" 2>/dev/null || true; \
+					fi; \
+				done; \
+				$(KERNEL_SOURCE)/scripts/kconfig/merge_config.sh -n .config $(MODULES_READY_CONFIGS) >/dev/null 2>&1; \
+				;; \
+			debug-ready) \
+				echo "# Configuration fragments used for debug-ready" > $(PWD)/$(CONFIG_DIR)/fragments.txt; \
+				for fragment in $(DEBUG_READY_CONFIGS); do \
+					echo "$$fragment" >> $(PWD)/$(CONFIG_DIR)/fragments.txt; \
+					if [ -f "$$fragment" ]; then \
+						cp "$$fragment" "$(PWD)/$(CONFIG_DIR)/" 2>/dev/null || true; \
+					fi; \
+				done; \
+				$(KERNEL_SOURCE)/scripts/kconfig/merge_config.sh -n .config $(DEBUG_READY_CONFIGS) >/dev/null 2>&1; \
+				;; \
+			defconfig|alldefconfig|allyesconfig|allnoconfig|tinyconfig) \
+				echo "# Kernel-native configuration: $(CONFIG_NAME)" > $(PWD)/$(CONFIG_DIR)/fragments.txt; \
+				echo "Using built-in kernel configuration target: $(CONFIG_NAME)" >> $(PWD)/$(CONFIG_DIR)/fragments.txt; \
+				make $(LLVM_FLAG) $(CONFIG_NAME) >/dev/null 2>&1; \
+				;; \
+			*) \
+				echo "   ⚠️  Unknown configuration '$(CONFIG_NAME)', skipping"; \
+				exit 0; \
+				;; \
+		esac; \
+		if [ -f .config ]; then \
+			cp .config $(PWD)/$(CONFIG_DIR)/; \
+			echo "   ✅ Generated .config and fragments.txt"; \
+		else \
+			echo "   ❌ Failed to generate .config"; \
+		fi; \
+		make $(LLVM_FLAG) mrproper >/dev/null 2>&1; \
+	)
+
 clean-results:
 	@echo "🧹 Cleaning benchmark results..."
 	@if [ -d "results" ]; then \

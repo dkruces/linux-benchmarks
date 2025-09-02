@@ -93,6 +93,23 @@ Each benchmark run captures complete build environment and configuration details
 
 This ensures every benchmark result can be exactly reproduced with the same configuration and environment.
 
+### Backfilling Missing Configuration Files
+
+For existing benchmark results that lack configuration files, use:
+
+```sh
+make backfill-configs
+```
+
+This will automatically:
+- Find all existing benchmark results (directories with `benchmark.json`)
+- Generate missing `.config` files for each configuration
+- Create `fragments.txt` with the list of fragments used
+- Copy individual fragment files to each result directory
+- Skip directories that already have complete configuration files
+
+Supported configurations: `minimal`, `ebpf-ready`, `modules-ready`, `debug-ready`, and kernel-native configs (`defconfig`, `allyesconfig`, etc.).
+
 ## Machine-Specific Results
 
 Results are organized by machine identifier (e.g., `mac142`, `x1gen7`) to track performance characteristics across different hardware configurations.
