@@ -63,6 +63,18 @@ THREAD_STEP ?= $(NPROC)
 RUNS ?= 10
 WARMUP ?= 1
 
+# Reproducible builds support (see Documentation/kbuild/reproducible-builds.rst)
+# Always enabled for consistent benchmark results
+
+# Reproducible build variables (Documentation/kbuild/reproducible-builds.rst)
+export KBUILD_BUILD_TIMESTAMP = 1991-08-25
+export KBUILD_BUILD_USER = user
+export KBUILD_BUILD_HOST = host
+export KCFLAGS = -fdebug-prefix-map=$(KERNEL_SOURCE)=/usr/src/linux
+
+# Always use reproducible builds
+RESULTS_BASE_DIR = results/$(MACHINE_ID)/$(KERNEL_VERSION)/$(COMPILER_DIR)
+
 # Base config files
 BASE_CONFIGS = $(CONFIG_FRAGMENTS)/kernel/configs/64bit.config
 
@@ -197,6 +209,11 @@ define collect_system_info
 	@echo "=================" >> $(1)
 	@echo "Compiler: $(if $(LLVM_FLAG),LLVM/Clang,GCC)" >> $(1)
 	@echo "LLVM Flag: $(LLVM_FLAG)" >> $(1)
+	@echo "Reproducible Builds: Enabled" >> $(1)
+	@echo "KBUILD_BUILD_TIMESTAMP: $(KBUILD_BUILD_TIMESTAMP)" >> $(1)
+	@echo "KBUILD_BUILD_USER: $(KBUILD_BUILD_USER)" >> $(1)
+	@echo "KBUILD_BUILD_HOST: $(KBUILD_BUILD_HOST)" >> $(1)
+	@echo "KCFLAGS: $(KCFLAGS)" >> $(1)
 	@echo "Make Threads: $(MIN_THREADS)-$(MAX_THREADS) (step: $(THREAD_STEP))" >> $(1)
 	@echo "Benchmark Runs: $(RUNS)" >> $(1)
 	@echo "Warmup Runs: $(WARMUP)" >> $(1)

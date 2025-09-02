@@ -46,6 +46,29 @@ The project relies on hyperfine's analysis scripts:
 - Thread counts typically tested: 8, 16 (varies by machine)
 - Architecture typically x86_64
 
+## Reproducible Builds
+
+This project always uses reproducible builds following the Linux kernel's `Documentation/kbuild/reproducible-builds.rst` guidelines. Reproducible builds ensure identical output from the same source code and build environment, providing consistent benchmark results.
+
+### Reproducible Build Features
+
+All builds automatically include:
+
+1. **Build Environment**:
+   - `KBUILD_BUILD_TIMESTAMP`: Fixed to `1991-08-25` (Linux announcement date)
+   - `KBUILD_BUILD_USER`: Fixed to `user`
+   - `KBUILD_BUILD_HOST`: Fixed to `host`
+
+2. **Debug Information**:
+   - `KCFLAGS`: Includes `-fdebug-prefix-map` for consistent debug paths
+   - Maps absolute kernel source paths to `/usr/src/linux` (ready for out-of-tree builds)
+
+### Benefits
+
+- **Verification**: Ensures build infrastructure hasn't been compromised
+- **Comparison**: True performance differences vs. build artifacts
+- **Consistency**: Same source + tools = identical binaries
+
 ## Machine-Specific Results
 
 Results are organized by machine identifier (e.g., `mac142`, `x1gen7`) to track performance characteristics across different hardware configurations.
