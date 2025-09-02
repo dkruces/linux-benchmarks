@@ -1,0 +1,24 @@
+Command 'make LLVM=1 -j12'
+  runs:         10
+  mean:     16.320 s
+  stddev:    0.400 s
+  median:   16.406 s
+  min:      15.865 s
+  max:      16.788 s
+
+  percentiles:
+     P_05 .. P_95:    15.866 s .. 16.787 s
+     P_25 .. P_75:    15.890 s .. 16.702 s  (IQR = 0.813 s)
+
+Command 'make LLVM=1 -j24'
+  runs:         10
+  mean:     16.100 s
+  stddev:    0.071 s
+  median:   16.101 s
+  min:      15.970 s
+  max:      16.205 s
+
+  percentiles:
+     P_05 .. P_95:    15.994 s .. 16.188 s
+     P_25 .. P_75:    16.069 s .. 16.150 s  (IQR = 0.080 s)
+

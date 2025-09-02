@@ -1,0 +1,2 @@
+# Kernel-native configuration: allyesconfig
+Using built-in kernel configuration target: allyesconfig

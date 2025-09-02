@@ -1,0 +1,2 @@
+# Kernel-native configuration: tinyconfig
+Using built-in kernel configuration target: tinyconfig

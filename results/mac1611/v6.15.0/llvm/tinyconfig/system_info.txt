@@ -1,0 +1,29 @@
+CPU: Apple M4 Pro (12) @ 4.51 GHz
+CPU Cache (L1): 8x192.00 KiB (I), 8x128.00 KiB (D), 4x128.00 KiB (I), 4x64.00 KiB (D)
+CPU Cache (L2): 2x16.00 MiB (U), 4.00 MiB (U)
+GPU: Apple M4 Pro (16) @ 1.58 GHz [Integrated]
+Kernel: Darwin 24.4.0
+OS: macOS Sequoia 15.4.1 arm64
+Host: Mac Mini (2024)
+Memory: 12.98 GiB / 24.00 GiB (54%)
+Physical Memory: 24.00 GiB - LPDDR5 (Micron)
+
+Build Environment:
+=================
+Compiler: LLVM/Clang
+LLVM Flag: LLVM=1
+Reproducible Builds: Enabled
+KBUILD_BUILD_TIMESTAMP: 1991-08-25
+KBUILD_BUILD_USER: user
+KBUILD_BUILD_HOST: host
+KCFLAGS: -fdebug-prefix-map=/Users/dagomez/src/kernel/linux=/usr/src/linux
+Make Threads: 12-24 (step: 12)
+Benchmark Runs: 10
+Warmup Runs: 1
+Kernel Source: /Users/dagomez/src/kernel/linux
+Config Fragments: /Users/dagomez/src/linux-config-fragments
+Machine ID: mac1611
+Kernel Version: v6.15.0
+Build Date: 2025-09-02 15:16:24 CEST
+GCC Version: Apple clang version 17.0.0 (clang-1700.0.13.3)
+Clang Version: Homebrew clang version 20.1.8

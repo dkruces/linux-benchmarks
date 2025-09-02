@@ -1,0 +1,2 @@
+# Kernel-native configuration: defconfig
+Using built-in kernel configuration target: defconfig
