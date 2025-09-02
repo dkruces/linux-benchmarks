@@ -239,6 +239,14 @@ define run_benchmark
 	@mkdir -p $(RESULTS_BASE_DIR)/$(1)
 	@echo "📋 Collecting system information..."
 	$(call collect_system_info,$(RESULTS_BASE_DIR)/$(1)/system_info.txt)
+	@echo "📝 Copying configuration fragments..."
+	@echo "# Configuration fragments used for $(1)" > $(RESULTS_BASE_DIR)/$(1)/fragments.txt
+	@for fragment in $(2); do \
+		echo "$$fragment" >> $(RESULTS_BASE_DIR)/$(1)/fragments.txt; \
+		if [ -f "$$fragment" ]; then \
+			cp "$$fragment" "$(RESULTS_BASE_DIR)/$(1)/" 2>/dev/null || true; \
+		fi; \
+	done
 	cd $(KERNEL_SOURCE) && $(BEE_INIT_CMD) \
 	hyperfine \
 		--parameter-scan nproc $(MIN_THREADS) $(MAX_THREADS) \
@@ -249,6 +257,8 @@ define run_benchmark
 		--conclude 'make $(LLVM_FLAG) mrproper' \
 		--export-markdown $(PWD)/$(RESULTS_BASE_DIR)/$(1)/benchmark.md \
 		--export-json $(PWD)/$(RESULTS_BASE_DIR)/$(1)/benchmark.json
+	@echo "📄 Copying final configuration..."
+	@cd $(KERNEL_SOURCE) && $(KERNEL_SOURCE)/scripts/kconfig/merge_config.sh -n .config $(2) >/dev/null 2>&1 && cp .config $(PWD)/$(RESULTS_BASE_DIR)/$(1)/ && make $(LLVM_FLAG) mrproper >/dev/null 2>&1
 endef
 
 # Simple benchmark function for kernel-native configs (defconfig, alldefconfig, etc.)
@@ -260,6 +270,9 @@ define run_kernel_config_benchmark
 	@mkdir -p $(RESULTS_BASE_DIR)/$(1)
 	@echo "📋 Collecting system information..."
 	$(call collect_system_info,$(RESULTS_BASE_DIR)/$(1)/system_info.txt)
+	@echo "📝 Recording kernel-native configuration..."
+	@echo "# Kernel-native configuration: $(1)" > $(RESULTS_BASE_DIR)/$(1)/fragments.txt
+	@echo "Using built-in kernel configuration target: $(1)" >> $(RESULTS_BASE_DIR)/$(1)/fragments.txt
 	cd $(KERNEL_SOURCE) && $(BEE_INIT_CMD) \
 	hyperfine \
 		--parameter-scan nproc $(MIN_THREADS) $(MAX_THREADS) \
@@ -270,6 +283,8 @@ define run_kernel_config_benchmark
 		--conclude 'make $(LLVM_FLAG) mrproper' \
 		--export-markdown $(PWD)/$(RESULTS_BASE_DIR)/$(1)/benchmark.md \
 		--export-json $(PWD)/$(RESULTS_BASE_DIR)/$(1)/benchmark.json
+	@echo "📄 Copying final configuration..."
+	@cd $(KERNEL_SOURCE) && make $(LLVM_FLAG) $(1) >/dev/null 2>&1 && cp .config $(PWD)/$(RESULTS_BASE_DIR)/$(1)/ && make $(LLVM_FLAG) mrproper >/dev/null 2>&1
 endef
 
 # Configuration targets

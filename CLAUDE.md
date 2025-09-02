@@ -11,7 +11,15 @@ This repository contains Linux kernel build benchmarks using hyperfine. The proj
 - `results/` - Archived benchmark results organized by machine and kernel version
   - Each machine has subdirectories for specific kernel versions (e.g., `v6.12-rc6/`)
   - Results include JSON data files, markdown reports, progression plots, and advanced statistics
-  - Common result files: `btiny.json`, `btiny.md`, `progression.png`, `advanced_statistics.log`
+  - **Benchmark artifacts per configuration**:
+    - `benchmark.json` - Hyperfine performance data
+    - `benchmark.md` - Human-readable benchmark report
+    - `system_info.txt` - Complete system and build environment info
+    - `.config` - Final kernel configuration used for the build
+    - `fragments.txt` - List of configuration fragments used
+    - Individual fragment files (for fragment-based configs)
+    - `progression.png` - Performance progression plot (when generated)
+    - `advanced_statistics.log` - Detailed statistical analysis (when generated)
 
 ## Benchmark Workflow
 
@@ -68,6 +76,22 @@ All builds automatically include:
 - **Verification**: Ensures build infrastructure hasn't been compromised
 - **Comparison**: True performance differences vs. build artifacts
 - **Consistency**: Same source + tools = identical binaries
+
+## Benchmark Traceability
+
+Each benchmark run captures complete build environment and configuration details:
+
+### Configuration Preservation
+- **`.config`**: Final merged kernel configuration used for the build
+- **`fragments.txt`**: List of configuration fragments that were merged
+- **Fragment files**: Copies of individual configuration fragment files (when using fragment-based configs)
+
+### Environment Capture
+- **Build environment variables**: All reproducible build settings (KBUILD_*, KCFLAGS)
+- **System information**: Hardware specs, compiler versions, build parameters
+- **Timestamp information**: When the benchmark was run and build environment state
+
+This ensures every benchmark result can be exactly reproduced with the same configuration and environment.
 
 ## Machine-Specific Results
 
