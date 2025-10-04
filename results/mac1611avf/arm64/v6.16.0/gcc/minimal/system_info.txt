@@ -1,0 +1,26 @@
+CPU: Virtualized Apple Silicon (8)
+GPU: Mesa llvmpipe (LLVM 19.1.7, 128 bits)
+Kernel: Linux 6.16.9+deb14-cloud-arm64
+OS: Debian GNU/Linux forky/sid aarch64
+Host: Apple Virtualization Generic Platform (1)
+Memory: 686.49 MiB / 15.60 GiB (4%)
+
+Build Environment:
+=================
+Compiler: GCC
+LLVM Flag: 
+Reproducible Builds: Enabled
+KBUILD_BUILD_TIMESTAMP: 1991-08-25
+KBUILD_BUILD_USER: user
+KBUILD_BUILD_HOST: host
+KCFLAGS: -fdebug-prefix-map=/home/dagomez.linux/src/kernel/linux=/usr/src/linux
+Make Threads: 8-16 (step: 8)
+Benchmark Runs: 10
+Warmup Runs: 1
+Kernel Source: /home/dagomez.linux/src/kernel/linux
+Config Fragments: /home/dagomez.linux/src/linux-config-fragments
+Machine ID: mac1611avf
+Kernel Version: v6.16.0
+Build Date: 2025-10-04 18:15:29 CEST
+GCC Version: gcc (Debian 15.2.0-4) 15.2.0
+Clang Version: Debian clang version 19.1.7 (3+b2)
