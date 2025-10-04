@@ -1,0 +1,23 @@
+{
+  "results": [
+    {
+      "command": "make  -j8",
+      "mean": 86.269952119,
+      "stddev": null,
+      "median": 86.269952119,
+      "user": 557.6396225,
+      "system": 49.127572,
+      "min": 86.269952119,
+      "max": 86.269952119,
+      "times": [
+        86.269952119
+      ],
+      "exit_codes": [
+        0
+      ],
+      "parameters": {
+        "nproc": "8"
+      }
+    }
+  ]
+}
