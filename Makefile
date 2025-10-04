@@ -160,9 +160,9 @@ help:
 	@echo "  tinyconfig      - Configure the tiniest possible kernel"
 	@echo ""
 	@echo "System targets:"
-	@echo "  analyze         - Generate advanced statistics from existing results"
-	@echo "  plot            - Generate progression plots from existing results"
-	@echo "  report          - Generate comprehensive markdown report with all analysis"
+	@echo "  report          - Generate comprehensive markdown report (runs analyze + plot)"
+	@echo "  analyze         - Generate advanced statistics for current benchmark results"
+	@echo "  plot            - Generate progression plots for current benchmark results"
 	@echo "  backfill-configs - Generate missing .config and fragments.txt for existing results"
 	@echo "  setup-scripts   - Download hyperfine analysis scripts"
 	@echo "  system-info     - Display current system information"
@@ -191,6 +191,7 @@ help:
 	@echo "  make minimal                    # Use default compiler (GCC on Linux, LLVM on macOS)"
 	@echo "  make minimal LLVM=1             # Force LLVM/Clang on Linux"
 	@echo "  make ebpf-ready RUNS=5 LLVM=1   # Custom runs with LLVM"
+	@echo "  make report                     # Generate comprehensive report with all analysis"
 	@echo "  make debug-ready KERNEL_SOURCE=/path/to/kernel CONFIG_FRAGMENTS=/path/to/fragments"
 
 # Validate kernel version matches user expectation
@@ -388,8 +389,7 @@ analyze: $(RESULTS_BASE_DIR) setup-scripts
 				json_file="$$config_dir/benchmark.json"; \
 				if [ -f "$$json_file" ]; then \
 					echo "  Processing $$config_name..."; \
-					cd "$$config_dir" && uv run ../../../../../scripts/advanced_statistics.py benchmark.json > advanced_statistics.log; \
-					cd - > /dev/null; \
+					uv run scripts/advanced_statistics.py "$$json_file" > "$$config_dir/advanced_statistics.log"; \
 				fi \
 			fi \
 		done; \
@@ -407,8 +407,7 @@ plot: $(RESULTS_BASE_DIR) setup-scripts
 				json_file="$$config_dir/benchmark.json"; \
 				if [ -f "$$json_file" ]; then \
 					echo "  Processing $$config_name..."; \
-					cd "$$config_dir" && uv run ../../../../../scripts/plot_progression.py benchmark.json --output progression.png; \
-					cd - > /dev/null; \
+					uv run scripts/plot_progression.py "$$json_file" --output "$$config_dir/progression.png"; \
 				fi \
 			fi \
 		done; \
@@ -417,6 +416,8 @@ plot: $(RESULTS_BASE_DIR) setup-scripts
 	fi
 
 # Generate comprehensive markdown report for current machine
+# This target runs setup-scripts, then generates the report which internally
+# calls analyze and plot as needed
 report: setup-scripts
 	@echo "📄 Generating comprehensive benchmark report..."
 	@machine_results_dir="results/$(MACHINE_ID)"; \

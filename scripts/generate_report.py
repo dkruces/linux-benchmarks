@@ -116,13 +116,13 @@ def format_benchmark_summary(data: dict) -> str:
              "|---------|----------|-------------|---------|---------|------|"]
     
     for result in results:
-        cmd = result.get("command", "").replace("make LLVM=1 -j", "make -j")
-        mean = result.get("mean", 0)
-        stddev = result.get("stddev", 0)
-        min_time = result.get("min", 0)
-        max_time = result.get("max", 0)
+        cmd = result.get("command", "").replace("make LLVM=1 -j", "make -j").replace("make  -j", "make -j")
+        mean = result.get("mean", 0) or 0
+        stddev = result.get("stddev", 0) or 0
+        min_time = result.get("min", 0) or 0
+        max_time = result.get("max", 0) or 0
         runs = len(result.get("times", []))
-        
+
         lines.append(f"| `{cmd}` | {mean:.3f} | {stddev:.3f} | {min_time:.3f} | {max_time:.3f} | {runs} |")
     
     return "\n".join(lines)
@@ -370,14 +370,17 @@ def main():
     
     print(f"Generating comprehensive report for {results_dir}")
     print(f"Output: {output_file}")
-    
-    # Generate the report
+    print(f"")
+    print(f"Analyzing benchmark results and generating artifacts...")
+
+    # Generate the report (this will call ensure_analysis_files for each config)
     report_content = generate_machine_report(results_dir, scripts_dir)
-    
+
     # Write the report
     with open(output_file, 'w') as f:
         f.write(report_content)
-    
+
+    print(f"")
     print(f"✅ Report generated: {output_file}")
     print(f"📊 Report contains benchmark data, system info, statistics, and plots")
 
