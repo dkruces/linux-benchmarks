@@ -58,6 +58,10 @@ make ebpf-ready
 make analyze plot
 ```
 
+Results are organized as: `results/{machine}/{arch}/{version}/{compiler}/{config}/`
+
+Example: `results/mac1611/arm64/v6.16.0/llvm/minimal/`
+
 
 ## Configuration Options
 
@@ -132,4 +136,4 @@ Command 'make LLVM=1 -j16'
 ./scripts/plot_progression.py btiny.json --output progression.png
 ```
 
-![Progression Plot Example](results/mac142/v6.12-rc6/progression.png)
+![Progression Plot Example](results/mac142/arm64/v6.12-rc6/progression.png)

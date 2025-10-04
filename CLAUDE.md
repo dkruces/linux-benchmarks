@@ -8,9 +8,12 @@ This repository contains Linux kernel build benchmarks using hyperfine. The proj
 
 ## Repository Structure
 
-- `results/` - Archived benchmark results organized by machine and kernel version
-  - Each machine has subdirectories for specific kernel versions (e.g., `v6.12-rc6/`)
-  - Results include JSON data files, markdown reports, progression plots, and advanced statistics
+- `results/` - Archived benchmark results organized by machine, architecture, and kernel version
+  - Each machine has subdirectories for architectures (e.g., `arm64/`, `x86_64/`)
+  - Each architecture has subdirectories for specific kernel versions (e.g., `v6.16.0/`)
+  - Each kernel version has subdirectories for compilers (e.g., `llvm/`, `gcc/`)
+  - **Path format**: `results/{machine}/{arch}/{version}/{compiler}/{config}/`
+  - **Example**: `results/mac1611/arm64/v6.16.0/llvm/minimal/`
   - **Benchmark artifacts per configuration**:
     - `benchmark.json` - Hyperfine performance data
     - `benchmark.md` - Human-readable benchmark report
@@ -112,7 +115,20 @@ Supported configurations: `minimal`, `ebpf-ready`, `modules-ready`, `debug-ready
 
 ## Machine-Specific Results
 
-Results are organized by machine identifier (e.g., `mac142`, `x1gen7`) to track performance characteristics across different hardware configurations.
+Results are organized by machine identifier (e.g., `mac142`, `x1gen7`) and architecture (e.g., `arm64`, `x86_64`) to track performance characteristics across different hardware configurations.
+
+### Architecture Naming
+
+The kernel uses different architecture names than `uname -m`:
+
+| `uname -m` | Kernel ARCH |
+|------------|-------------|
+| aarch64    | arm64       |
+| x86_64     | x86_64      |
+| armv7l     | arm         |
+| ppc64le    | powerpc     |
+
+Benchmarks are organized by kernel architecture names for consistency with kernel build system.
 
 ## Commit Guidelines
 
