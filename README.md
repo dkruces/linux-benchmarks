@@ -54,13 +54,26 @@ make defconfig
 # Run eBPF-ready configuration
 make ebpf-ready
 
-# Generate analysis from results
-make analyze plot
+# Generate comprehensive reports (markdown + HTML)
+make report
 ```
 
 Results are organized as: `results/{machine}/{arch}/{version}/{compiler}/{config}/`
 
 Example: `results/mac1611/arm64/v6.16.0/llvm/minimal/`
+
+### Generated Reports
+
+Each machine gets comprehensive reports:
+- **Markdown**: `results/{machine}/REPORT.md`
+- **HTML**: `results/{machine}/index.html` - [View on GitHub](https://htmlpreview.github.io/)
+
+The HTML report provides an interactive, styled view with:
+- Summary statistics cards
+- System information
+- Benchmark results tables
+- Performance progression plots (embedded as base64)
+- Advanced statistical analysis
 
 
 ## Configuration Options

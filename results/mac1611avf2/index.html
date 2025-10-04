@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MAC1611AVF2 - Linux Kernel Build Benchmarks</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .timestamp {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        .info-box {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 5px;
+        }
+        .info-box ul {
+            margin: 10px 0;
+            padding-left: 20px;
+            list-style: none;
+        }
+        .info-box li {
+            margin: 8px 0;
+            color: #4a5568;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        tr:hover {
+            background: #f7fafc;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .section {
+            margin: 40px 0;
+        }
+        .section-title {
+            font-size: 1.8em;
+            color: #2d3748;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        .chart-container {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 10px;
+        }
+        code {
+            background: #edf2f7;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MAC1611AVF2 Build Benchmarks</h1>
+        <div class="timestamp">Generated on 2025-10-04 20:58:56</div>
+
+        <div class="summary-grid">
+            <div class="stat-card">
+                <div class="stat-label">Architecture</div>
+                <div class="stat-value">arm64</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Kernel Version</div>
+                <div class="stat-value">v6.16.0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Build Time</div>
+                <div class="stat-value">86.3s</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Compiler</div>
+                <div class="stat-value">GCC</div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3 style="margin-top: 0; color: #2d3748;">About This Report</h3>
+            <ul>
+                <li><strong>Machine:</strong> mac1611avf2</li>
+                <li><strong>CPU:</strong> Virtualized Apple Silicon (8)</li>
+                <li><strong>Configurations:</strong> 2 benchmark(s)</li>
+                <li><strong>Reproducible Builds:</strong> Enabled</li>
+            </ul>
+        </div>
+
+
+        <div class="section">
+            <h2 class="section-title">arm64 / v6.16.0 / gcc / ebpf-ready</h2>
+
+            <div class="info-box">
+                <h3 style="margin-top: 0; color: #2d3748;">System Information</h3>
+                <ul>
+<li><strong>CPU:</strong> Virtualized Apple Silicon (8)</li>
+<li><strong>GPU:</strong> Mesa llvmpipe (LLVM 19.1.7, 128 bits)</li>
+<li><strong>Kernel:</strong> Linux 6.16.9+deb14-cloud-arm64</li>
+<li><strong>OS:</strong> Debian GNU/Linux forky/sid aarch64</li>
+<li><strong>Host:</strong> Apple Virtualization Generic Platform (1)</li>
+<li><strong>Memory:</strong> 959.59 MiB / 15.60 GiB (6%)</li>
+<li><strong>Build Environment:</strong> </li>
+<li><strong>Machine Architecture:</strong> aarch64</li>
+<li><strong>Kernel Architecture:</strong> arm64</li>
+<li><strong>Compiler:</strong> GCC</li>
+<li><strong>LLVM Flag:</strong> </li>
+<li><strong>Reproducible Builds:</strong> Enabled</li>
+<li><strong>KBUILD_BUILD_TIMESTAMP:</strong> 1991-08-25</li>
+<li><strong>KBUILD_BUILD_USER:</strong> user</li>
+<li><strong>KBUILD_BUILD_HOST:</strong> host</li>
+<li><strong>KCFLAGS:</strong> -fdebug-prefix-map=/home/dagomez.linux/src/kernel/linux=/usr/src/linux</li>
+<li><strong>Make Threads:</strong> 8-8 (step: 8)</li>
+<li><strong>Benchmark Runs:</strong> 1</li>
+<li><strong>Warmup Runs:</strong> 1</li>
+<li><strong>Kernel Source:</strong> /home/dagomez.linux/src/kernel/linux</li>
+<li><strong>Config Fragments:</strong> /home/dagomez.linux/src/linux-config-fragments</li>
+<li><strong>Machine ID:</strong> mac1611avf2</li>
+<li><strong>Kernel Version:</strong> v6.16.0</li>
+<li><strong>Build Date:</strong> 2025-10-04 20:54:35 CEST</li>
+<li><strong>GCC Version:</strong> gcc (Debian 15.2.0-4) 15.2.0</li>
+<li><strong>Clang Version:</strong> Debian clang version 19.1.7 (3+b2)</li>
+                </ul>
+            </div>
+
+            <h3 style="color: #4a5568; margin-top: 30px;">Benchmark Results</h3>
+            <table>
+                <tr>
+                    <th>Command</th>
+                    <th>Mean (s)</th>
+                    <th>Std Dev (s)</th>
+                    <th>Min (s)</th>
+                    <th>Max (s)</th>
+                    <th>Runs</th>
+                </tr>
+                <tr>
+                    <td><code>make -j8</code></td>
+                    <td>86.270</td>
+                    <td>0.000</td>
+                    <td>86.270</td>
+                    <td>86.270</td>
+                    <td>1</td>
+                </tr>
+            </table>
+
+            <h3 style="color: #4a5568; margin-top: 30px;">Advanced Statistics</h3>
+            <pre style="background: #f7fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea; overflow-x: auto;">Command 'make  -j8'
+  runs:          1
+  mean:     86.270 s
+  stddev:      nan s
+  median:   86.270 s
+  min:      86.270 s
+  max:      86.270 s
+
+  percentiles:
+     P_05 .. P_95:    86.270 s .. 86.270 s
+     P_25 .. P_75:    86.270 s .. 86.270 s  (IQR = 0.000 s)</pre>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">arm64 / v6.16.0 / gcc / minimal</h2>
+
+            <div class="info-box">
+                <h3 style="margin-top: 0; color: #2d3748;">System Information</h3>
+                <ul>
+<li><strong>CPU:</strong> Virtualized Apple Silicon (8)</li>
+<li><strong>GPU:</strong> Mesa llvmpipe (LLVM 19.1.7, 128 bits)</li>
+<li><strong>Kernel:</strong> Linux 6.16.9+deb14-cloud-arm64</li>
+<li><strong>OS:</strong> Debian GNU/Linux forky/sid aarch64</li>
+<li><strong>Host:</strong> Apple Virtualization Generic Platform (1)</li>
+<li><strong>Memory:</strong> 881.92 MiB / 15.60 GiB (6%)</li>
+<li><strong>Build Environment:</strong> </li>
+<li><strong>Machine Architecture:</strong> aarch64</li>
+<li><strong>Kernel Architecture:</strong> arm64</li>
+<li><strong>Compiler:</strong> GCC</li>
+<li><strong>LLVM Flag:</strong> </li>
+<li><strong>Reproducible Builds:</strong> Enabled</li>
+<li><strong>KBUILD_BUILD_TIMESTAMP:</strong> 1991-08-25</li>
+<li><strong>KBUILD_BUILD_USER:</strong> user</li>
+<li><strong>KBUILD_BUILD_HOST:</strong> host</li>
+<li><strong>KCFLAGS:</strong> -fdebug-prefix-map=/home/dagomez.linux/src/kernel/linux=/usr/src/linux</li>
+<li><strong>Make Threads:</strong> 8-8 (step: 8)</li>
+<li><strong>Benchmark Runs:</strong> 1</li>
+<li><strong>Warmup Runs:</strong> 1</li>
+<li><strong>Kernel Source:</strong> /home/dagomez.linux/src/kernel/linux</li>
+<li><strong>Config Fragments:</strong> /home/dagomez.linux/src/linux-config-fragments</li>
+<li><strong>Machine ID:</strong> mac1611avf2</li>
+<li><strong>Kernel Version:</strong> v6.16.0</li>
+<li><strong>Build Date:</strong> 2025-10-04 20:33:36 CEST</li>
+<li><strong>GCC Version:</strong> gcc (Debian 15.2.0-4) 15.2.0</li>
+<li><strong>Clang Version:</strong> Debian clang version 19.1.7 (3+b2)</li>
+                </ul>
+            </div>
+
+            <h3 style="color: #4a5568; margin-top: 30px;">Benchmark Results</h3>
+            <table>
+                <tr>
+                    <th>Command</th>
+                    <th>Mean (s)</th>
+                    <th>Std Dev (s)</th>
+                    <th>Min (s)</th>
+                    <th>Max (s)</th>
+                    <th>Runs</th>
+                </tr>
+                <tr>
+                    <td><code>make -j8</code></td>
+                    <td>63.925</td>
+                    <td>0.000</td>
+                    <td>63.925</td>
+                    <td>63.925</td>
+                    <td>1</td>
+                </tr>
+            </table>
+        </div>
+
+
+        <div style="text-align: center; padding: 30px 0; color: #718096; font-size: 0.9em; border-top: 1px solid #e2e8f0; margin-top: 40px;">
+            <p>Linux Kernel Build Benchmarks</p>
+            <p>Generated with hyperfine • Reproducible builds enabled</p>
+        </div>
+    </div>
+</body>
+</html>
