@@ -232,10 +232,10 @@ def generate_config_report(config_dir: Path, scripts_dir: Path, machine_dir: Pat
 
 
 def generate_machine_report(machine_dir: Path, scripts_dir: Path) -> str:
-    """Generate report for a single machine across all kernel versions."""
+    """Generate report for a single machine across all architectures and kernel versions."""
     machine_name = machine_dir.name
     report_sections = [f"# {machine_name.upper()} Benchmark Report"]
-    
+
     report_sections.extend([
         "",
         f"Comprehensive benchmark results for machine **{machine_name}**.",
@@ -243,44 +243,87 @@ def generate_machine_report(machine_dir: Path, scripts_dir: Path) -> str:
         f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
         ""
     ])
-    
-    # Process each kernel version
-    kernel_versions = sorted([d for d in machine_dir.iterdir() if d.is_dir()])
-    
-    for version_dir in kernel_versions:
-        version_name = version_dir.name
-        report_sections.extend([
-            f"## Kernel Version {version_name}",
-            ""
-        ])
-        
-        # Process compiler directories (llvm, gcc, etc.)
-        compiler_dirs = sorted([d for d in version_dir.iterdir() if d.is_dir()])
-        
-        if not compiler_dirs:
-            # Direct configuration directories (legacy format)
-            config_dirs = sorted([d for d in version_dir.iterdir() if d.is_dir()])
-            for config_dir in config_dirs:
-                if (config_dir / "benchmark.json").exists() or (config_dir / "btiny.json").exists():
-                    config_report = generate_config_report(config_dir, scripts_dir, machine_dir)
-                    if config_report:
-                        report_sections.extend([config_report, ""])
-        else:
-            # New format with compiler subdirectories
-            for compiler_dir in compiler_dirs:
-                compiler_name = compiler_dir.name
+
+    # Get all subdirectories
+    subdirs = sorted([d for d in machine_dir.iterdir() if d.is_dir()])
+
+    # Detect if we have architecture-based structure (arm64, x86_64, etc.)
+    # or legacy structure (v6.x.x directly)
+    arch_dirs = [d for d in subdirs if d.name in ['arm64', 'x86_64', 'arm', 'powerpc']]
+
+    if arch_dirs:
+        # New architecture-based structure
+        for arch_dir in arch_dirs:
+            arch_name = arch_dir.name
+            report_sections.extend([
+                f"## Architecture: {arch_name}",
+                ""
+            ])
+
+            # Process each kernel version under this architecture
+            kernel_versions = sorted([d for d in arch_dir.iterdir() if d.is_dir() and d.name.startswith('v')])
+
+            for version_dir in kernel_versions:
+                version_name = version_dir.name
                 report_sections.extend([
-                    f"### {compiler_name.upper()} Compiler Results",
+                    f"### Kernel Version {version_name}",
                     ""
                 ])
-                
-                config_dirs = sorted([d for d in compiler_dir.iterdir() if d.is_dir()])
+
+                # Process compiler directories (llvm, gcc, etc.)
+                compiler_dirs = sorted([d for d in version_dir.iterdir() if d.is_dir()])
+
+                for compiler_dir in compiler_dirs:
+                    compiler_name = compiler_dir.name
+                    report_sections.extend([
+                        f"#### {compiler_name.upper()} Compiler Results",
+                        ""
+                    ])
+
+                    config_dirs = sorted([d for d in compiler_dir.iterdir() if d.is_dir()])
+                    for config_dir in config_dirs:
+                        if (config_dir / "benchmark.json").exists():
+                            config_report = generate_config_report(config_dir, scripts_dir, machine_dir)
+                            if config_report:
+                                report_sections.extend([config_report, ""])
+    else:
+        # Legacy structure: directly under machine (v6.x.x)
+        kernel_versions = sorted([d for d in subdirs if d.name.startswith('v')])
+
+        for version_dir in kernel_versions:
+            version_name = version_dir.name
+            report_sections.extend([
+                f"## Kernel Version {version_name}",
+                ""
+            ])
+
+            # Process compiler directories (llvm, gcc, etc.)
+            compiler_dirs = sorted([d for d in version_dir.iterdir() if d.is_dir()])
+
+            if not compiler_dirs:
+                # Direct configuration directories (very old legacy format)
+                config_dirs = sorted([d for d in version_dir.iterdir() if d.is_dir()])
                 for config_dir in config_dirs:
-                    if (config_dir / "benchmark.json").exists():
+                    if (config_dir / "benchmark.json").exists() or (config_dir / "btiny.json").exists():
                         config_report = generate_config_report(config_dir, scripts_dir, machine_dir)
                         if config_report:
                             report_sections.extend([config_report, ""])
-    
+            else:
+                # Format with compiler subdirectories
+                for compiler_dir in compiler_dirs:
+                    compiler_name = compiler_dir.name
+                    report_sections.extend([
+                        f"### {compiler_name.upper()} Compiler Results",
+                        ""
+                    ])
+
+                    config_dirs = sorted([d for d in compiler_dir.iterdir() if d.is_dir()])
+                    for config_dir in config_dirs:
+                        if (config_dir / "benchmark.json").exists():
+                            config_report = generate_config_report(config_dir, scripts_dir, machine_dir)
+                            if config_report:
+                                report_sections.extend([config_report, ""])
+
     return "\n".join(report_sections)
 
 
