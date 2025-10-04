@@ -4,7 +4,7 @@
 .PHONY: help minimal ebpf-ready modules-ready debug-ready
 .PHONY: kvm_guest virtio-fs systemd distro storage numa ebpf ebpf-errorinj
 .PHONY: defconfig alldefconfig allyesconfig allnoconfig tinyconfig
-.PHONY: analyze plot clean-results setup-scripts system-info
+.PHONY: _analyze _plot _setup-scripts clean-results system-info
 
 # Default target
 all: help
@@ -160,11 +160,8 @@ help:
 	@echo "  tinyconfig      - Configure the tiniest possible kernel"
 	@echo ""
 	@echo "System targets:"
-	@echo "  report          - Generate comprehensive markdown report (runs analyze + plot)"
-	@echo "  analyze         - Generate advanced statistics for current benchmark results"
-	@echo "  plot            - Generate progression plots for current benchmark results"
+	@echo "  report          - Generate comprehensive markdown report with all analysis"
 	@echo "  backfill-configs - Generate missing .config and fragments.txt for existing results"
-	@echo "  setup-scripts   - Download hyperfine analysis scripts"
 	@echo "  system-info     - Display current system information"
 	@echo "  clean-results   - Remove all benchmark results"
 	@echo "  help            - Show this help message"
@@ -362,8 +359,8 @@ allnoconfig: $(RESULTS_BASE_DIR)
 tinyconfig: $(RESULTS_BASE_DIR)
 	$(call run_kernel_config_benchmark,tinyconfig)
 
-# Download hyperfine analysis scripts
-setup-scripts:
+# Download hyperfine analysis scripts (internal target)
+_setup-scripts:
 	@echo "📥 Setting up hyperfine analysis scripts..."
 	@if [ ! -d "scripts" ]; then \
 		mkdir scripts; \
@@ -379,8 +376,8 @@ setup-scripts:
 		echo "✅ Scripts already exist"; \
 	fi
 
-# Generate advanced statistics for all JSON files in results directory
-analyze: $(RESULTS_BASE_DIR) setup-scripts
+# Generate advanced statistics for all JSON files in results directory (internal target)
+_analyze: $(RESULTS_BASE_DIR) _setup-scripts
 	@echo "📈 Generating advanced statistics for all benchmark results..."
 	@if [ -f "scripts/advanced_statistics.py" ]; then \
 		for config_dir in $(RESULTS_BASE_DIR)/*/; do \
@@ -397,8 +394,8 @@ analyze: $(RESULTS_BASE_DIR) setup-scripts
 		echo "⚠️  scripts/advanced_statistics.py not found - skipping statistics"; \
 	fi
 
-# Generate progression plots for all JSON files in results directory
-plot: $(RESULTS_BASE_DIR) setup-scripts
+# Generate progression plots for all JSON files in results directory (internal target)
+_plot: $(RESULTS_BASE_DIR) _setup-scripts
 	@echo "📊 Generating progression plots for all benchmark results..."
 	@if [ -f "scripts/plot_progression.py" ]; then \
 		for config_dir in $(RESULTS_BASE_DIR)/*/; do \
@@ -416,9 +413,9 @@ plot: $(RESULTS_BASE_DIR) setup-scripts
 	fi
 
 # Generate comprehensive markdown report for current machine
-# This target runs setup-scripts, then generates the report which internally
-# calls analyze and plot as needed
-report: setup-scripts
+# This target runs _setup-scripts, then generates the report which internally
+# calls ensure_analysis_files (analyze + plot) for each config
+report: _setup-scripts
 	@echo "📄 Generating comprehensive benchmark report..."
 	@machine_results_dir="results/$(MACHINE_ID)"; \
 	if [ -d "$$machine_results_dir" ]; then \
