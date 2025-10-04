@@ -27,6 +27,21 @@ MACHINE_ID ?= $(shell \
 		echo "linux_$$(uname -m)"; \
 	fi)
 
+# Architecture detection - map uname -m to kernel architecture names
+MACHINE_ARCH := $(shell uname -m)
+KERNEL_ARCH := $(shell \
+	if [ "$$(uname -m)" = "x86_64" ]; then \
+		echo "x86_64"; \
+	elif [ "$$(uname -m)" = "aarch64" ]; then \
+		echo "arm64"; \
+	elif [ "$$(uname -m)" = "armv7l" ]; then \
+		echo "arm"; \
+	elif [ "$$(uname -m)" = "ppc64le" ]; then \
+		echo "powerpc"; \
+	else \
+		echo "$$(uname -m)"; \
+	fi)
+
 # Kernel version (user can override, defaults to v6.12.0)
 KERNEL_VERSION ?= v6.12.0
 
@@ -55,7 +70,7 @@ DETECTED_KERNEL_VERSION := $(shell \
 
 # Benchmark parameters
 COMPILER_DIR = $(if $(LLVM_FLAG),llvm,gcc)
-RESULTS_BASE_DIR = results/$(MACHINE_ID)/$(KERNEL_VERSION)/$(COMPILER_DIR)
+RESULTS_BASE_DIR = results/$(MACHINE_ID)/$(KERNEL_ARCH)/$(KERNEL_VERSION)/$(COMPILER_DIR)
 NPROC := $(shell nproc)
 MIN_THREADS ?= $(NPROC)
 MAX_THREADS ?= $(shell expr $(NPROC) \* 2)
@@ -73,7 +88,7 @@ export KBUILD_BUILD_HOST = host
 export KCFLAGS = -fdebug-prefix-map=$(KERNEL_SOURCE)=/usr/src/linux
 
 # Always use reproducible builds
-RESULTS_BASE_DIR = results/$(MACHINE_ID)/$(KERNEL_VERSION)/$(COMPILER_DIR)
+# (RESULTS_BASE_DIR already defined above with architecture)
 
 # Base config files
 BASE_CONFIGS = $(CONFIG_FRAGMENTS)/kernel/configs/64bit.config
@@ -158,6 +173,8 @@ help:
 	@echo "  KERNEL_SOURCE   = $(KERNEL_SOURCE)"
 	@echo "  CONFIG_FRAGMENTS= $(CONFIG_FRAGMENTS)"
 	@echo "  MACHINE_ID      = $(MACHINE_ID)"
+	@echo "  MACHINE_ARCH    = $(MACHINE_ARCH)"
+	@echo "  KERNEL_ARCH     = $(KERNEL_ARCH)"
 	@echo "  KERNEL_VERSION  = $(KERNEL_VERSION)"
 	@echo "  MIN_THREADS     = $(MIN_THREADS)"
 	@echo "  MAX_THREADS     = $(MAX_THREADS)"
@@ -208,6 +225,8 @@ define collect_system_info
 	@echo "" >> $(1)
 	@echo "Build Environment:" >> $(1)
 	@echo "=================" >> $(1)
+	@echo "Machine Architecture: $(MACHINE_ARCH)" >> $(1)
+	@echo "Kernel Architecture: $(KERNEL_ARCH)" >> $(1)
 	@echo "Compiler: $(if $(LLVM_FLAG),LLVM/Clang,GCC)" >> $(1)
 	@echo "LLVM Flag: $(LLVM_FLAG)" >> $(1)
 	@echo "Reproducible Builds: Enabled" >> $(1)
