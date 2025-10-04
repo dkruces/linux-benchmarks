@@ -65,19 +65,28 @@ def ensure_analysis_files(result_dir: Path, scripts_dir: Path) -> Dict[str, bool
     else:
         results["stats"] = True
     
-    # Generate progression plot if missing
+    # Generate progression plot if missing (only for multi-run benchmarks)
     if not plot_file.exists():
-        plot_script = scripts_dir / "plot_progression.py"
-        if plot_script.exists():
-            success, _ = run_command([
-                "uv", "run", str(plot_script.absolute()), 
-                str(json_file.absolute()), 
-                "--output", str(plot_file.absolute())
-            ], cwd=result_dir)
-            if success:
-                results["plot"] = True
-            else:
-                print(f"Warning: Failed to generate plot for {result_dir}")
+        # Check if we have enough data points for a plot
+        data = load_json_data(json_file)
+        can_plot = False
+        if data and "results" in data:
+            for result in data["results"]:
+                if len(result.get("times", [])) > 1:
+                    can_plot = True
+                    break
+
+        if can_plot:
+            plot_script = scripts_dir / "plot_progression.py"
+            if plot_script.exists():
+                success, _ = run_command([
+                    "uv", "run", str(plot_script.absolute()),
+                    str(json_file.absolute()),
+                    "--output", str(plot_file.absolute())
+                ], cwd=result_dir)
+                if success:
+                    results["plot"] = True
+                # Silently skip if plot generation fails (expected for single runs)
     else:
         results["plot"] = True
     
