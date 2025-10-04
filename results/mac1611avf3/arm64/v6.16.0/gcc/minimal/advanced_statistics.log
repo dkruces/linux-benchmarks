@@ -1,0 +1,12 @@
+Command 'make  -j8'
+  runs:          3
+  mean:     63.413 s
+  stddev:    0.929 s
+  median:   63.145 s
+  min:      62.648 s
+  max:      64.447 s
+
+  percentiles:
+     P_05 .. P_95:    62.697 s .. 64.317 s
+     P_25 .. P_75:    62.896 s .. 63.796 s  (IQR = 0.900 s)
+

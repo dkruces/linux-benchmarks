@@ -1,0 +1,10 @@
+# Configuration fragments used for ebpf-ready
+/home/dagomez.linux/src/linux-config-fragments/kernel/configs/64bit.config
+/home/dagomez.linux/src/kernel/linux/kernel/configs/kvm_guest.config
+/home/dagomez.linux/src/linux-config-fragments/kernel/configs/virtio-fs.config
+/home/dagomez.linux/src/linux-config-fragments/kernel/configs/systemd.config
+/home/dagomez.linux/src/linux-config-fragments/kernel/configs/distro.config
+/home/dagomez.linux/src/linux-config-fragments/kernel/configs/storage.config
+/home/dagomez.linux/src/linux-config-fragments/kernel/configs/numa.config
+/home/dagomez.linux/src/linux-config-fragments/kernel/configs/ebpf.config
+/home/dagomez.linux/src/linux-config-fragments/kernel/configs/ebpf-errorinj.config
